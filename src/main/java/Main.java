@@ -20,15 +20,18 @@ import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
-        String[] columnMapping = {"id", "firstName", "lastName", "country", "age"};
-        String fileName = "data.csv";
+    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
 
-        List<Employee> list = parseCSV(columnMapping, fileName);
+        //String[] columnMapping = {"id", "firstName", "lastName", "country", "age"};
+        //String fileName = "data.csv";
+
+       // List<Employee> list = parseCSV(columnMapping, fileName);
+       // String json = listToJson(list);
+       // writeString(json);
+
+        List<Employee> list = parseXML("data.xml");
         String json = listToJson(list);
         writeString(json);
-
-        List<Employee> list1 = parseXML("data.xml");
 
     }
 
@@ -54,7 +57,7 @@ public class Main {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         System.out.println(gson.toJson(list));
-        Type listType = new TypeToken<List<Employee>>() {
+        Type listType = new TypeToken<List<Employee>>(){
         }.getType();
         String json = gson.toJson(list, listType);
         return json;
@@ -74,19 +77,34 @@ public class Main {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(new File("data.xml"));
-
-        Node employeeElements = doc.getDocumentElement();
-        System.out.println("Корневой элемент" + employeeElements.getNodeName());
-
-        NodeList nodeList = employeeElements.getChildNodes();
+        Node root = doc.getDocumentElement();
+        System.out.println("Корневой элемент" + root.getNodeName());
+        NodeList nodeList = root.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
-            Node employee = nodeList.item(i);
-            NamedNodeMap attributes = employee.getAttributes();
-                
+            Node node = nodeList.item(i);
+            if (Node.ELEMENT_NODE == node.getNodeType()) {
+                Element element = (Element) node;
+
+                String stringId = element.getElementsByTagName("id").item(0).getTextContent();
+                long id = Integer.parseInt(stringId);
+                String firstName = element.getElementsByTagName("firstName").item(0).getTextContent();
+                String lastName = element.getElementsByTagName("lastName").item(0).getTextContent();
+                String country = element.getElementsByTagName("country").item(0).getTextContent();
+                String stringAge = element.getElementsByTagName("age").item(0).getTextContent();
+                int age = Integer.parseInt(stringAge);
+                Employee employee = new Employee(id, firstName, lastName, country, age);
+                list.add(employee);
+
+            }
         }
         return list;
     }
 }
+
+
+
+
+
 
 
 
