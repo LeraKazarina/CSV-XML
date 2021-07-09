@@ -16,27 +16,27 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
 
-        //String[] columnMapping = {"id", "firstName", "lastName", "country", "age"};
-        //String fileName = "data.csv";
+        String[] columnMapping = {"id", "firstName", "lastName", "country", "age"};
+        String fileName = "data.csv";
 
-       // List<Employee> list = parseCSV(columnMapping, fileName);
-       // String json = listToJson(list);
-       // writeString(json);
-
-        List<Employee> list = parseXML("data.xml");
+        List<Employee> list = parseCSV(columnMapping, fileName);
         String json = listToJson(list);
         writeString(json);
 
+        List<Employee> list2 = parseXML("data2.xml");
+        String json2 = listToJson(list2);
+        writeString(json2);
     }
 
     private static List<Employee> parseCSV(String[] columnMapping, String fileName) {
-        List<Employee> list = null;
+        List<Employee> list = new ArrayList<>();
         try (CSVReader csvReader = new CSVReader(new FileReader(fileName))) {
             ColumnPositionMappingStrategy<Employee> strategy = new ColumnPositionMappingStrategy<>();
             strategy.setType(Employee.class);
@@ -73,10 +73,10 @@ public class Main {
     }
 
     private static List<Employee> parseXML(String document) throws ParserConfigurationException, IOException, SAXException {
-        List<Employee> list = null;
+        List<Employee> list = new ArrayList<>();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(new File("data.xml"));
+        Document doc = builder.parse(new File(document));
         Node root = doc.getDocumentElement();
         System.out.println("Корневой элемент" + root.getNodeName());
         NodeList nodeList = root.getChildNodes();
@@ -94,7 +94,6 @@ public class Main {
                 int age = Integer.parseInt(stringAge);
                 Employee employee = new Employee(id, firstName, lastName, country, age);
                 list.add(employee);
-
             }
         }
         return list;
